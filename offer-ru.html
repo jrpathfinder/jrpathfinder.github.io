@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Обучение Claude Code</title>
+  <meta name="description" content="Обучение Claude Code и Codex с нуля: установка, настройка и решение ваших задач. Рустем Глюмов.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- JetBrains Mono ≈ the spaced monospace of yandex.ru/cup, with Cyrillic -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #000000;
+      --muted: #6b6b6b;
+      --highlight: #cc7c5e;
+      --on-highlight: #000000;
+      --blue: #2f62d0;
+      --orange: #ff5a36;
+      --yellow: #cc7c5e;
+      --dash: #000000;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #000000;
+        --ink: #ffffff;
+        --muted: #a3a3a3;
+        --blue: #7aa2ff;
+        --dash: #ffffff;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #000000;
+      --ink: #ffffff;
+      --muted: #a3a3a3;
+      --blue: #7aa2ff;
+      --dash: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      font-weight: 400;
+      letter-spacing: .14em;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { color: inherit; }
+
+    /* Left navigation */
+    .side {
+      position: fixed;
+      top: 24px;
+      left: 20px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+    .side a { text-decoration: none; }
+    .side a:hover { text-decoration: underline; text-underline-offset: 5px; }
+    .side .current { color: var(--blue); }
+    .side .current::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 14px;
+      border-radius: 50%;
+      background: var(--blue);
+      vertical-align: 1px;
+    }
+    .side .cta { text-decoration: underline; text-underline-offset: 5px; }
+
+    /* Floating math symbols */
+    .glyphs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .glyphs span {
+      position: absolute;
+      font-size: 18px;
+      letter-spacing: 0;
+      animation: drift 9s ease-in-out infinite alternate;
+    }
+    .glyphs .p { color: var(--blue); }
+    .glyphs .o { color: var(--orange); }
+    .glyphs .y { color: var(--yellow); }
+    @keyframes drift {
+      from { transform: translate(0, 0); }
+      to { transform: translate(6px, -10px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .glyphs span { animation: none; }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 120px 60px 120px 340px;
+      text-align: center;
+    }
+
+    /* Hero */
+    .eyebrow {
+      margin: 0 0 28px;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+    h1 {
+      margin: 0;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      line-height: 1.15;
+    }
+    h1 .small { display: block; font-size: clamp(18px, 3vw, 30px); letter-spacing: .3em; margin-bottom: 14px; }
+    h1 .big { display: block; font-size: clamp(20px, 4vw, 50px); }
+    h1 .brace { font-weight: 300; }
+
+    .mark {
+      display: inline;
+      padding: 4px 10px;
+      background: var(--highlight);
+      color: var(--on-highlight);
+      font-size: clamp(14px, 1.8vw, 19px);
+      line-height: 2;
+      text-transform: uppercase;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+    .highlight { margin: 64px 0 0; }
+
+    .sub {
+      max-width: 620px;
+      margin: 28px auto 0;
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    /* Hashtags */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 26px;
+      max-width: 680px;
+      margin: 44px auto 0;
+      padding: 0;
+      list-style: none;
+      font-size: 14px;
+      letter-spacing: .06em;
+    }
+    .tags li:nth-child(3n+1) { color: var(--blue); }
+    .tags li:nth-child(3n+2) { color: var(--orange); }
+
+    /* Price cards: dashed frame, stitched icon, colored price tag */
+    .formats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin: 96px 0 0;
+      padding: 0;
+      list-style: none;
+      text-align: left;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      min-height: 440px;
+      padding: 28px 26px;
+      border: 1.5px dashed var(--dash);
+      color: var(--c);
+    }
+    .card.c-blue { --c: var(--blue); --on: #ffffff; }
+    .card.c-claude { --c: var(--highlight); --on: #000000; }
+    .card.c-orange { --c: var(--orange); --on: #000000; }
+    .card svg { display: block; width: 120px; height: 60px; overflow: visible; }
+    .card svg * {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3;
+      stroke-dasharray: 3 1.5;
+      stroke-linejoin: round;
+    }
+    .card .price {
+      align-self: flex-start;
+      margin: 56px 0 14px;
+      padding: 4px 12px;
+      background: var(--c);
+      color: var(--on);
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      white-space: nowrap;
+    }
+    .card h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.55;
+      text-transform: uppercase;
+    }
+    .card .meta {
+      margin: auto 0 0;
+      padding-top: 32px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .cta-link {
+      display: inline-block;
+      margin-top: 80px;
+      font-size: 18px;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+    .cta-link:hover { color: var(--blue); }
+
+    .about {
+      max-width: 700px;
+      margin: 96px auto 0;
+      font-size: 15px;
+      line-height: 1.9;
+    }
+    .about p { margin: 0 0 14px; }
+    .about a { text-underline-offset: 5px; }
+
+    /* Theme toggle, bottom-left dashed square */
+    .theme {
+      position: fixed;
+      left: 2px;
+      bottom: 2px;
+      z-index: 2;
+      width: 64px;
+      height: 64px;
+      border: 1px dashed var(--dash);
+      background: var(--bg);
+      color: var(--ink);
+      font: inherit;
+      font-size: 26px;
+      letter-spacing: 0;
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .side {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+        padding: 20px 16px 0;
+        font-size: 13px;
+      }
+      main { padding: 64px 16px 120px; }
+      h1 .big { font-size: clamp(20px, 7vw, 40px); }
+      .theme { width: 48px; height: 48px; font-size: 20px; }
+      .highlight { margin-top: 44px; }
+      .formats { margin-top: 64px; }
+      .card { min-height: 0; }
+      .cta-link { margin-top: 56px; }
+      .about { margin-top: 64px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="side" aria-label="Разделы">
+    <a class="current" href="#top">Обучение</a>
+    <a href="#formats">Форматы</a>
+    <a href="#about">Обо мне</a>
+    <a class="cta" href="register-ru.html">Записаться ⟶»</a>
+    <a href="payment-ru.html">Оплата</a>
+    <a href="index-ru.html">Профиль</a>
+  </nav>
+
+  <div class="glyphs" aria-hidden="true">
+    <span class="p" style="top:4%;left:68%">ℕ</span>
+    <span class="y" style="top:12%;left:15%">ℕ</span>
+    <span class="o" style="top:26%;left:52%">∀</span>
+    <span class="o" style="top:42%;left:44%">¬</span>
+    <span class="y" style="top:22%;left:90%">¬</span>
+    <span class="o" style="top:47%;left:76%">∞</span>
+    <span class="p" style="top:49%;left:88%">∅</span>
+    <span class="p" style="top:68%;left:29%">∞</span>
+    <span class="y" style="top:69%;left:41%">∅</span>
+    <span class="o" style="top:67%;left:58%">∩</span>
+    <span class="y" style="top:87%;left:10%">∩</span>
+    <span class="p" style="top:83%;left:34%">≢</span>
+    <span class="o" style="top:84%;left:84%">√</span>
+    <span class="y" style="top:95%;left:15%">ℕ</span>
+  </div>
+
+  <main id="top">
+    <p class="eyebrow">ИИ-агенты для работы · с нуля</p>
+    <h1>
+      <span class="small">Обучение</span>
+      <span class="big"><span class="brace">{</span>&nbsp;Claude&nbsp;Code&nbsp;| Codex&nbsp;<span class="brace">}</span></span>
+    </h1>
+
+    <p class="highlight"><span class="mark">Установка, настройка и решение<br>ваших задач</span></p>
+
+    <p class="sub">Операционная деятельность, финансы, инженерная работа</p>
+
+    <ul class="tags">
+      <li>#Вайбкодинг</li>
+      <li>#АвтоматизацияРутины</li>
+      <li>#ОтчётыExcel</li>
+      <li>#Финансы</li>
+      <li>#ИнженернаяРабота</li>
+      <li>#СозданиеБотов</li>
+      <li>#хочучтобывсёсамо</li>
+    </ul>
+
+    <ul class="formats" id="formats">
+      <li class="card c-blue">
+        <svg viewBox="0 0 120 60" aria-hidden="true">
+          <rect x="2" y="2" width="76" height="56" rx="4"/>
+          <line x1="2" y1="14" x2="78" y2="14"/>
+          <polyline points="14,26 24,34 14,42"/>
+          <line x1="30" y1="44" x2="48" y2="44"/>
+          <line x1="100" y1="4" x2="100" y2="40"/>
+          <polyline points="89,29 100,40 111,29"/>
+          <line x1="86" y1="55" x2="114" y2="55"/>
+        </svg>
+        <p class="price">от 3 000 ₽</p>
+        <h2>Установка<br>Claude Code<br>или Codex</h2>
+        <p class="meta">Ставлю и настраиваю агента на вашем компьютере и проверяем, что всё работает.</p>
+      </li>
+      <li class="card c-claude">
+        <svg viewBox="0 0 120 60" aria-hidden="true">
+          <rect x="2" y="2" width="76" height="44" rx="4"/>
+          <line x1="40" y1="46" x2="40" y2="56"/>
+          <line x1="24" y1="57" x2="56" y2="57"/>
+          <circle cx="40" cy="18" r="7"/>
+          <path d="M26 40 q14 -16 28 0"/>
+          <circle cx="102" cy="28" r="16"/>
+          <polygon points="97,20 97,36 110,28"/>
+        </svg>
+        <p class="price">5 000 ₽</p>
+        <h2>Обучение онлайн<br>2 часа</h2>
+        <p class="meta">Разбираем ваши задачи в Zoom или Телемосте, от первого запроса до готового результата.</p>
+      </li>
+      <li class="card c-orange">
+        <svg viewBox="0 0 120 60" aria-hidden="true">
+          <rect x="2" y="8" width="64" height="50" rx="4"/>
+          <line x1="2" y1="22" x2="66" y2="22"/>
+          <line x1="18" y1="2" x2="18" y2="14"/>
+          <line x1="50" y1="2" x2="50" y2="14"/>
+          <rect x="12" y="30" width="8" height="8"/>
+          <rect x="30" y="30" width="8" height="8"/>
+          <rect x="48" y="30" width="8" height="8"/>
+          <rect x="12" y="44" width="8" height="8"/>
+          <rect x="30" y="44" width="8" height="8"/>
+          <line x1="98" y1="14" x2="98" y2="46"/>
+          <line x1="82" y1="30" x2="114" y2="30"/>
+        </svg>
+        <p class="price">+2 000 ₽</p>
+        <h2>Подписка<br>на месяц</h2>
+        <p class="meta">Добавляется к любому формату.</p>
+      </li>
+    </ul>
+
+    <a class="cta-link" href="register-ru.html">Записаться ⟶»</a>
+
+    <section class="about" id="about">
+      <p>Ведёт Рустем Глюмов — Senior Software Engineer, 20 лет в разработке корпоративных систем для банков, финтеха и e-commerce, последние годы — AI-платформы на LLM и RAG.</p>
+      <p><a href="https://www.linkedin.com/in/rgliumov/">LinkedIn</a> · <a href="https://github.com/jrpathfinder">GitHub</a></p>
+    </section>
+  </main>
+
+  <button class="theme" type="button" aria-label="Сменить тему">☀</button>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var btn = document.querySelector('.theme');
+      function isDark() {
+        var t = root.getAttribute('data-theme');
+        if (t) return t === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      function sync() { btn.textContent = isDark() ? '☾' : '☀'; }
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved) root.setAttribute('data-theme', saved);
+      } catch (e) {}
+      sync();
+      btn.addEventListener('click', function () {
+        var next = isDark() ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        sync();
+      });
+    })();
+  </script>
+</body>
+</html>

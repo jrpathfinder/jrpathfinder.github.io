@@ -1,0 +1,382 @@
+<!doctype html>
+    <html lang="ru">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Рустем Глюмов</title>
+      <meta name="description" content="Рустем Глюмов, Senior Software Engineer. 20 лет в разработке: банки, финтех, e-commerce и AI-платформы.">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <!-- JetBrains Mono ≈ the spaced monospace of yandex.ru/cup, same as offer-ru.html -->
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+      <style>
+        :root {
+      --bg: #ffffff;
+      --ink: #000000;
+      --muted: #6b6b6b;
+      --highlight: #cc7c5e;
+      --blue: #2f62d0;
+      --orange: #ff5a36;
+      --yellow: #cc7c5e;
+      --dash: #000000;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #000000;
+        --ink: #ffffff;
+        --muted: #a3a3a3;
+        --blue: #7aa2ff;
+        --dash: #ffffff;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #000000;
+      --ink: #ffffff;
+      --muted: #a3a3a3;
+      --blue: #7aa2ff;
+      --dash: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      letter-spacing: .14em;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { color: inherit; }
+
+    /* Left navigation */
+    .side {
+      position: fixed;
+      top: 24px;
+      left: 20px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+    .side a { text-decoration: none; }
+    .side a:hover { text-decoration: underline; text-underline-offset: 5px; }
+    .side .current { color: var(--blue); }
+    .side .current::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 14px;
+      border-radius: 50%;
+      background: var(--blue);
+      vertical-align: 1px;
+    }
+    .side .cta, .side .lang { text-decoration: underline; text-underline-offset: 5px; }
+
+    /* Floating math symbols */
+    .glyphs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .glyphs span {
+      position: absolute;
+      font-size: 18px;
+      letter-spacing: 0;
+      animation: drift 9s ease-in-out infinite alternate;
+    }
+    .glyphs .p { color: var(--blue); }
+    .glyphs .o { color: var(--orange); }
+    .glyphs .y { color: var(--yellow); }
+    @keyframes drift {
+      from { transform: translate(0, 0); }
+      to { transform: translate(6px, -10px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .glyphs span { animation: none; }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 96px 60px 120px 340px;
+      text-align: center;
+    }
+
+    /* Hero */
+    .photo {
+      display: block;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 36px;
+      border: 1px dashed var(--dash);
+      background: #ffffff;
+    }
+    h1 {
+      margin: 0;
+      font-weight: 400;
+      font-size: clamp(26px, 4.4vw, 56px);
+      letter-spacing: .22em;
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+    .mark {
+      display: inline;
+      padding: 4px 10px;
+      background: var(--highlight);
+      color: #000000;
+      font-size: clamp(14px, 1.8vw, 19px);
+      line-height: 2;
+      text-transform: uppercase;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+    .highlight { margin: 48px 0 0; }
+    /* Section heading: highlighted tag + gray note, like "Prizes" on yandex.com/cup/ml */
+    .section { max-width: 820px; margin: 120px auto 0; text-align: left; }
+    .tag {
+      display: inline-block;
+      margin: 0;
+      padding: 4px 10px;
+      background: var(--highlight);
+      color: #000000;
+      font-size: 18px;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+    .note { margin: 18px 0 0 30%; color: var(--muted); font-size: 16px; }
+    .about {
+      margin: 40px 0 0;
+      font-size: clamp(16px, 1.9vw, 22px);
+      line-height: 1.6;
+      text-transform: uppercase;
+    }
+
+    /* Experience: zigzag steps joined by dashed arrows */
+    .scheme { --shift: 45%; --r: 10px; margin-top: 56px; }
+    .step { width: calc(100% - var(--shift)); }
+    .step.right { margin-left: var(--shift); }
+    .step .num { display: block; font-size: 18px; letter-spacing: 0; }
+    .step .years {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 20px;
+      font-style: italic;
+      letter-spacing: .08em;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+    .step .role { margin: 14px 0 0 1.4em; font-size: 17px; text-transform: uppercase; }
+    .step .what { margin: 6px 0 0 1.4em; color: var(--muted); font-size: 14px; letter-spacing: .06em; }
+    .link { position: relative; width: var(--shift); height: 84px; margin: 24px 0 18px 8px; }
+    .link::before, .link::after { content: ""; position: absolute; border: 0 dashed var(--ink); }
+    .link::before {
+      left: 0;
+      top: 0;
+      width: calc(100% - var(--r));
+      height: 50%;
+      border-left-width: 1.5px;
+      border-bottom-width: 1.5px;
+      border-bottom-left-radius: var(--r);
+    }
+    .link::after {
+      right: 0;
+      top: calc(50% - 1.5px);
+      width: var(--r);
+      height: 50%;
+      border-top-width: 1.5px;
+      border-right-width: 1.5px;
+      border-top-right-radius: var(--r);
+    }
+    .link .head { position: absolute; right: -4.5px; bottom: -9px; font-size: 10px; letter-spacing: 0; line-height: 1; }
+    .link.rev { transform: scaleX(-1); }
+
+    .links {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 32px;
+      flex-wrap: wrap;
+      gap: 12px 36px;
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+    .links a { text-underline-offset: 6px; }
+    .links a:hover { color: var(--blue); }
+
+    /* Theme toggle, bottom-left dashed square */
+    .theme {
+      position: fixed;
+      left: 2px;
+      bottom: 2px;
+      z-index: 2;
+      width: 64px;
+      height: 64px;
+      border: 1px dashed var(--dash);
+      background: var(--bg);
+      color: var(--ink);
+      font: inherit;
+      font-size: 26px;
+      letter-spacing: 0;
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .side {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+        padding: 20px 16px 0;
+        font-size: 13px;
+      }
+      main { padding: 56px 16px 120px; }
+      h1 { font-size: clamp(24px, 8vw, 40px); letter-spacing: .16em; }
+      .section { margin-top: 80px; }
+      .note { margin-left: 0; }
+      .scheme { --shift: 22%; }
+      .link { height: 60px; }
+      .theme { width: 48px; height: 48px; font-size: 20px; }
+    }
+      </style>
+    </head>
+    <body>
+      <nav class="side" aria-label="Разделы">
+        <a class="current" href="#top">Профиль</a>
+        <a href="#about">Обо мне</a>
+        <a href="#experience">Опыт</a>
+        <a href="register-ru.html">Запись</a>
+    <a class="cta" href="offer-ru.html">Обучение ⟶»</a>
+        <a class="lang" href="index.html" hreflang="en" lang="en">EN</a>
+      </nav>
+
+      <div class="glyphs" aria-hidden="true">
+    <span class="p" style="top:4%;left:68%">ℕ</span>
+    <span class="y" style="top:12%;left:15%">ℕ</span>
+    <span class="o" style="top:26%;left:52%">∀</span>
+    <span class="o" style="top:42%;left:44%">¬</span>
+    <span class="y" style="top:22%;left:90%">¬</span>
+    <span class="o" style="top:47%;left:76%">∞</span>
+    <span class="p" style="top:49%;left:88%">∅</span>
+    <span class="p" style="top:68%;left:29%">∞</span>
+    <span class="y" style="top:69%;left:41%">∅</span>
+    <span class="o" style="top:67%;left:58%">∩</span>
+    <span class="y" style="top:87%;left:10%">∩</span>
+    <span class="p" style="top:83%;left:34%">≢</span>
+    <span class="o" style="top:84%;left:84%">√</span>
+    <span class="y" style="top:95%;left:15%">ℕ</span>
+  </div>
+
+      <main id="top">
+        <img class="photo" src="data:image/png;base64,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" alt="Рустем Глюмов" width="96" height="96">
+        <h1 aria-label="Рустем Глюмов"><span class="scramble" aria-hidden="true">Рустем Глюмов</span></h1>
+
+        <p class="highlight"><span class="mark">Senior Software Engineer</span></p>
+
+        <section class="section" id="about">
+          <h2 class="tag">Обо мне</h2>
+          <p class="about">20 лет разрабатываю корпоративные системы для банков, финтеха и e-commerce. Последние годы строю AI-платформы на LLM, RAG и семантическом поиске.</p>
+        </section>
+
+        <section class="section" id="experience">
+          <h2 class="tag">Опыт</h2>
+          <p class="note">20 лет в разработке — от Java-сервисов до AI-платформ.</p>
+          <div class="scheme">
+          <div class="step">
+            <span class="num" aria-hidden="true">①</span>
+            <span class="years">2026 — сейчас</span>
+            <p class="role">AI Platform Architect &amp; Founder</p>
+            <p class="what">RAG, семантический поиск, интеграция LLM</p>
+          </div>
+          <div class="link" aria-hidden="true"><span class="head">▼</span></div>
+      <div class="step right">
+            <span class="num" aria-hidden="true">②</span>
+            <span class="years">2023 — 2026</span>
+            <p class="role">Lead Software Engineer</p>
+            <p class="what">Банк ДОМ.РФ · 10M+ транзакций в день, 99,99% доступности</p>
+          </div>
+          <div class="link rev" aria-hidden="true"><span class="head">▼</span></div>
+      <div class="step">
+            <span class="num" aria-hidden="true">③</span>
+            <span class="years">2022 — 2023</span>
+            <p class="role">Senior Java Developer / Tech Lead</p>
+            <p class="what">EPAM · B2B e-commerce для TVH, Бельгия</p>
+          </div>
+          <div class="link" aria-hidden="true"><span class="head">▼</span></div>
+      <div class="step right">
+            <span class="num" aria-hidden="true">④</span>
+            <span class="years">2018 — 2022</span>
+            <p class="role">Senior Java Developer</p>
+            <p class="what">Сбер, Иннотех · брокерские и кредитные сервисы</p>
+          </div>
+          <div class="link rev" aria-hidden="true"><span class="head">▼</span></div>
+      <div class="step">
+            <span class="num" aria-hidden="true">⑤</span>
+            <span class="years">2006 — 2018</span>
+            <p class="role">Java Developer</p>
+            <p class="what">ПСБ, Accenture, Татнефть, Exigen и др.</p>
+          </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="tag">Контакты</h2>
+          <nav class="links" aria-label="Контакты">
+            <a href="https://www.linkedin.com/in/rgliumov/">LinkedIn</a>
+            <a href="https://github.com/jrpathfinder">GitHub</a>
+          </nav>
+        </section>
+      </main>
+
+      <button class="theme" type="button" aria-label="Сменить тему">☀</button>
+
+      <script>
+    (function () {
+      var root = document.documentElement;
+      var btn = document.querySelector('.theme');
+      function isDark() {
+        var t = root.getAttribute('data-theme');
+        if (t) return t === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      function sync() { btn.textContent = isDark() ? '☾' : '☀'; }
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved) root.setAttribute('data-theme', saved);
+      } catch (e) {}
+      sync();
+      btn.addEventListener('click', function () {
+        var next = isDark() ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        sync();
+      });
+    })();
+
+    // Name decode, like yandex.ru/cup/ml: letters flicker through symbols, then settle one by one
+    (function () {
+      var el = document.querySelector('.scramble');
+      if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var target = el.textContent;
+      var noise = '!#_/Y<>*░▒▓█';
+      var start = performance.now();
+      var settle = Array.prototype.map.call(target, function (ch) {
+        return /\s/.test(ch) ? 0 : 250 + Math.random() * 1150;
+      });
+      function frame(now) {
+        var t = now - start, out = '', done = true;
+        for (var i = 0; i < target.length; i++) {
+          if (t >= settle[i]) out += target[i];
+          else { out += noise[Math.floor(Math.random() * noise.length)]; done = false; }
+        }
+        el.textContent = out;
+        if (!done) setTimeout(function () { requestAnimationFrame(frame); }, 50);
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+    </body>
+    </html>
+    
