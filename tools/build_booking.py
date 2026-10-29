@@ -12,8 +12,8 @@ CONFIG = {
     # Booking links from Calendly or Cal.com, one event type per format,
     # e.g. 'https://calendly.com/your-name/setup' or 'https://cal.com/your-name/online'
     'booking': {
-        'install': None,
-        'online': None,
+        'install': 'https://calendly.com/jr-pathfinder/1hr',
+        'online': 'https://calendly.com/jr-pathfinder/1hr',
     },
     # SBP QR code saved from your banking app ("QR для приёма переводов"),
     # as an image file in the project folder, e.g. 'sbp-qr.png'
