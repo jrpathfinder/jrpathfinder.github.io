@@ -149,14 +149,16 @@ CSS = '''    :root {
     }
 
     /* Hero */
+    .tv { position: relative; width: 96px; margin: 0 auto 36px; }
     .photo {
       display: block;
       width: 96px;
       height: 96px;
-      margin: 0 auto 36px;
       border: 1px dashed var(--dash);
       background: #ffffff;
     }
+    /* Bad-signal bursts of an old black-and-white TV, drawn over the photo */
+    .tv canvas { position: absolute; top: 1px; left: 1px; width: 94px; height: 94px; visibility: hidden; }
     h1 {
       margin: 0;
       font-weight: 400;
@@ -344,6 +346,49 @@ SCRIPT = '''  <script>
       }
       requestAnimationFrame(frame);
     })();
+
+    // Old TV losing signal: every couple of seconds the photo tears, rolls and fills with snow
+    (function () {
+      var cv = document.querySelector('.tv canvas');
+      if (!cv || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var img = cv.previousElementSibling, ctx = cv.getContext('2d');
+      var W = cv.width, H = cv.height, PERIOD = 2400, BURST = 600, start = null;
+      var snow = ctx.createImageData(W, H);
+      function frame(now) {
+        if (start === null) start = now;
+        var t = (now - start) % PERIOD;
+        if (t > BURST) { cv.style.visibility = 'hidden'; requestAnimationFrame(frame); return; }
+        var p = Math.sin(Math.PI * t / BURST);  // 0 → 1 → 0 across the burst
+        cv.style.visibility = 'visible';
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, W, H);
+        // Lost vertical hold and tearing: strips of the picture slide sideways
+        var jump = Math.random() < .3 ? Math.round((Math.random() - .5) * 40 * p) : 0;
+        for (var y = 0; y < H; y += 6) {
+          var dx = Math.random() < .25 * p ? (Math.random() - .5) * 60 * p : 0;
+          ctx.drawImage(img, 0, (y + jump + H) % H * img.naturalHeight / H, img.naturalWidth, 6 * img.naturalHeight / H, dx, y, W, 6);
+        }
+        // Snow
+        var d = snow.data;
+        for (var i = 0; i < d.length; i += 4) {
+          d[i] = d[i + 1] = d[i + 2] = Math.random() * 255;
+          d[i + 3] = 150 * p;
+        }
+        var tmp = document.createElement('canvas');
+        tmp.width = W; tmp.height = H;
+        tmp.getContext('2d').putImageData(snow, 0, 0);
+        ctx.drawImage(tmp, 0, 0);
+        // Rolling dark bar and scanlines
+        var bar = t / BURST * (H + 60) - 30;
+        ctx.fillStyle = 'rgba(0,0,0,' + .45 * p + ')';
+        ctx.fillRect(0, bar, W, 30);
+        ctx.fillStyle = 'rgba(0,0,0,.18)';
+        for (y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
+        setTimeout(function () { requestAnimationFrame(frame); }, 50);
+      }
+      if (img.complete) requestAnimationFrame(frame);
+      else img.addEventListener('load', function () { requestAnimationFrame(frame); });
+    })();
   </script>'''
 
 def main(root=ROOT):
@@ -392,7 +437,7 @@ def main(root=ROOT):
     {GLYPHS}
 
       <main id="top">
-        <img class="photo" src="{photo}" alt="{t['first']} {t['last']}" width="96" height="96">
+        <div class="tv"><img class="photo" src="{photo}" alt="{t['first']} {t['last']}" width="96" height="96"><canvas width="188" height="188" aria-hidden="true"></canvas></div>
         <h1 aria-label="{t['first']} {t['last']}"><span class="scramble" aria-hidden="true">{t['first']} {t['last']}</span></h1>
 
         <p class="highlight"><span class="mark">Senior Software Engineer</span></p>
