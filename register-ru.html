@@ -314,9 +314,18 @@
     }
     .qr img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
+    /* Payment page: Yandex Cup yellow instead of the Claude color */
+    .payment { --highlight: #ffe81a; }
+
     /* Phone transfer, until the QR is added */
     .by-phone { margin-top: 56px; }
     .by-phone p { margin: 0; font-size: 18px; text-transform: uppercase; }
+    .rules { max-width: 560px; margin: 96px auto 0; text-align: left; color: var(--muted); font-size: 10px; letter-spacing: .04em; line-height: 1.6; }
+    .rules h2 { margin: 0 0 8px; font-size: 10px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+    .rules ul { margin: 0; padding: 0; list-style: none; }
+    .rules li { position: relative; padding-left: 14px; }
+    .rules li + li { margin-top: 6px; }
+    .rules li::before { content: "*"; position: absolute; left: 0; }
     .by-phone .phone { display: inline-block; margin-top: 18px; padding: 4px 12px; background: var(--highlight); color: #000000; font-size: 30px; font-weight: 500; letter-spacing: .08em; white-space: nowrap; }
 
     @media (max-width: 900px) {
@@ -351,7 +360,7 @@
     <span class="y" style="top:95%;left:15%">ℕ</span>
   </div>
 
-  <main id="top">
+  <main id="top" class="register">
     <h1 aria-label="Запись"><span class="scramble" aria-hidden="true">Запись</span></h1>
     <p class="highlight"><span class="mark">Формат → время → оплата</span></p>
 

@@ -52,6 +52,16 @@ T = {
         payment=dict(
             title='Оплата — Рустем Глюмов', h1='Оплата', mark='СБП',
             qr_alt='QR-код для оплаты по СБП', by_phone='Перевод по номеру телефона в Райффайзенбанк',
+            rules_title='Правила оплаты',
+            rules=[
+                'Оплата 100% после записи в календаре. Если оплаты нет за 24 часа до встречи, слот освобождается.',
+                'Не понравилось в первые 15 минут — останавливаемся, возвращаю 100%.',
+                'Отмена или перенос больше чем за 24 часа — бесплатно.',
+                'Отмена меньше чем за 24 часа или неявка — один бесплатный перенос, без возврата.',
+                'После проведённой сессии возврата нет. Если что-то не доделали — бесплатный созвон на 30 минут.',
+                'Подписка: за неиспользованные недели возвращаю пропорционально.',
+                'Возврат — по СБП на номер, с которого пришла оплата, в течение 1–3 дней.',
+            ],
         ),
     ),
     'en': dict(
@@ -76,6 +86,16 @@ T = {
         payment=dict(
             title='Payment — Rustem Gliumov', h1='Payment', mark='SBP',
             qr_alt='SBP payment QR code', by_phone='Transfer by phone number to Raiffeisenbank',
+            rules_title='Payment terms',
+            rules=[
+                'Pay in full after booking a slot. If payment has not arrived 24 hours before the session, the slot is released.',
+                'Not happy in the first 15 minutes — we stop and you get a 100% refund.',
+                'Cancel or reschedule more than 24 hours ahead — free.',
+                'Cancel less than 24 hours ahead or no-show — one free reschedule, no refund.',
+                'No refund after a completed session. If something was left unfinished — a free 30-minute follow-up call.',
+                'Subscription: unused weeks are refunded pro rata.',
+                'Refunds go by SBP to the number the payment came from, within 1–3 days.',
+            ],
         ),
     ),
 }
@@ -154,9 +174,18 @@ EXTRA_CSS = '''
     }
     .qr img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
+    /* Payment page: Yandex Cup yellow instead of the Claude color */
+    .payment { --highlight: #ffe81a; }
+
     /* Phone transfer, until the QR is added */
     .by-phone { margin-top: 56px; }
     .by-phone p { margin: 0; font-size: 18px; text-transform: uppercase; }
+    .rules { max-width: 560px; margin: 96px auto 0; text-align: left; color: var(--muted); font-size: 10px; letter-spacing: .04em; line-height: 1.6; }
+    .rules h2 { margin: 0 0 8px; font-size: 10px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+    .rules ul { margin: 0; padding: 0; list-style: none; }
+    .rules li { position: relative; padding-left: 14px; }
+    .rules li + li { margin-top: 6px; }
+    .rules li::before { content: "*"; position: absolute; left: 0; }
     .by-phone .phone { display: inline-block; margin-top: 18px; padding: 4px 12px; background: var(--highlight); color: #000000; font-size: 30px; font-weight: 500; letter-spacing: .08em; white-space: nowrap; }
 
     @media (max-width: 900px) {
@@ -194,7 +223,7 @@ def page(t, kind, title, body, script):
 
 {GLYPHS}
 
-  <main id="top">
+  <main id="top" class="{kind}">
 {body}
   </main>
 
@@ -307,10 +336,17 @@ def payment(t):
         phone = CONFIG['sbp_phone']
         pay = (f'<div class="by-phone"><p>{p["by_phone"]}</p>'
                f'<span class="phone">{phone}</span></div>')
+    rules = ''.join(f'        <li>{r}</li>\n' for r in p['rules'])
     body = f'''    <h1 aria-label="{p['h1']}"><span class="scramble" aria-hidden="true">{p['h1']}</span></h1>
     <p class="highlight"><span class="mark">{p['mark']}</span></p>
 
-    {pay}'''
+    {pay}
+
+    <section class="rules">
+      <h2>{p['rules_title']}</h2>
+      <ul>
+{rules}      </ul>
+    </section>'''
     return page(t, 'payment', p['title'], body, '')
 
 
