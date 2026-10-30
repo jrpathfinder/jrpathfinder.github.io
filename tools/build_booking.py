@@ -27,7 +27,6 @@ FORMATS = {
     'install': {'amount': 3000, 'from': True},
     'online': {'amount': 5000, 'from': False},
 }
-SUB_AMOUNT = 2000
 
 T = {
     'ru': dict(
@@ -43,7 +42,6 @@ T = {
                 'install': ('Установка и начало работы', '1 час · Claude Code или Codex на вашем компьютере'),
                 'online': ('Обучение онлайн', '2 часа · Zoom или Телемост'),
             },
-            sub=('Подписка на месяц', 'Покупка подписки Claude или Codex на месяц · добавляется к любому формату'),
             time_note='Выберите удобный слот. Подтверждение придёт на почту.',
             no_calendar='Календарь появится здесь после подключения Calendly или Cal.com',
             pay_note='Оплата переводом по СБП после записи. Итого:',
@@ -59,7 +57,6 @@ T = {
                 'Отмена или перенос больше чем за 24 часа — бесплатно.',
                 'Отмена меньше чем за 24 часа или неявка — один бесплатный перенос, без возврата.',
                 'После проведённой сессии возврата нет. Если что-то не доделали — бесплатный созвон на 30 минут.',
-                'Подписка Claude или Codex после покупки не возвращается.',
                 'Возврат — по СБП на номер, с которого пришла оплата, в течение 1–3 дней.',
             ],
         ),
@@ -77,7 +74,6 @@ T = {
                 'install': ('Setup and getting started', '1 hour · Claude Code or Codex on your computer'),
                 'online': ('Online training', '2 hours · Zoom or Telemost'),
             },
-            sub=('Monthly subscription', 'Buying a one-month Claude or Codex subscription for you · add to any format'),
             time_note='Pick a slot that suits you. You will get a confirmation by email.',
             no_calendar='The calendar will appear here once Calendly or Cal.com is connected',
             pay_note='Payment by SBP transfer after booking. Total:',
@@ -93,7 +89,6 @@ T = {
                 'Cancel or reschedule more than 24 hours ahead — free.',
                 'Cancel less than 24 hours ahead or no-show — one free reschedule, no refund.',
                 'No refund after a completed session. If something was left unfinished — a free 30-minute follow-up call.',
-                'A Claude or Codex subscription cannot be refunded once bought.',
                 'Refunds go by SBP to the number the payment came from, within 1–3 days.',
             ],
         ),
@@ -143,7 +138,6 @@ EXTRA_CSS = '''
     .choice .meta { color: var(--muted); font-size: 14px; letter-spacing: .06em; }
     .c-blue { --c: var(--blue); --on: #ffffff; }
     .c-claude { --c: var(--highlight); --on: #000000; }
-    .c-orange { --c: var(--orange); --on: #000000; }
 
     .lead { margin: 22px 0 0; color: var(--muted); font-size: 15px; }
     .booking { margin-top: 20px; border: 1.5px dashed var(--dash); background: #ffffff; }
@@ -261,15 +255,6 @@ def register(t):
           <span class="meta">{meta}</span>
         </label>
 '''
-    sub_price = '+2 000 ₽' if t['lang'] == 'ru' else '+2,000 ₽'
-    choices += f'''        <label class="choice c-orange">
-          <input type="checkbox" name="sub" value="1">
-          <span class="pick" aria-hidden="true">□</span>
-          <h3>{r['sub'][0]}</h3>
-          <span class="price">{sub_price}</span>
-          <span class="meta">{r['sub'][1]}</span>
-        </label>
-'''
     body = f'''    <h1 aria-label="{r['h1']}"><span class="scramble" aria-hidden="true">{r['h1']}</span></h1>
     <p class="highlight"><span class="mark">{r['mark']}</span></p>
 
@@ -295,22 +280,21 @@ def register(t):
     </section>'''
     script = f'''    (function () {{
       var BOOKING = {json.dumps(CONFIG['booking'])};
-      var FORMATS = {json.dumps(FORMATS)}, SUB = {SUB_AMOUNT};
+      var FORMATS = {json.dumps(FORMATS)};
       var LOCALE = '{'ru-RU' if t['lang'] == 'ru' else 'en-US'}', FROM = '{'от ' if t['lang'] == 'ru' else 'from '}';
       var form = document.querySelectorAll('.choice input');
       var shown = null;
       function money(n) {{ return n.toLocaleString(LOCALE) + ' ₽'; }}
       function update() {{
         var f = document.querySelector('input[name=format]:checked').value;
-        var sub = document.querySelector('input[name=sub]').checked;
         form.forEach(function (i) {{
           var c = i.closest('.choice');
           c.classList.toggle('on', i.checked);
-          c.querySelector('.pick').textContent = i.type === 'radio' ? (i.checked ? '●' : '○') : (i.checked ? '■' : '□');
+          c.querySelector('.pick').textContent = i.checked ? '●' : '○';
         }});
-        var total = FORMATS[f].amount + (sub ? SUB : 0);
+        var total = FORMATS[f].amount;
         document.getElementById('total').textContent = (FORMATS[f].from ? FROM : '') + money(total);
-        document.getElementById('to-pay').href = 'payment{s}.html?f=' + f + (sub ? '&sub=1' : '');
+        document.getElementById('to-pay').href = 'payment{s}.html?f=' + f;
         if (BOOKING[f] && shown !== f) {{
           shown = f;
           var url = BOOKING[f] + (BOOKING[f].indexOf('?') < 0 ? '?' : '&') + 'embed=true&hide_gdpr_banner=1';

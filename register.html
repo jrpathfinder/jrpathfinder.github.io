@@ -283,7 +283,6 @@
     .choice .meta { color: var(--muted); font-size: 14px; letter-spacing: .06em; }
     .c-blue { --c: var(--blue); --on: #ffffff; }
     .c-claude { --c: var(--highlight); --on: #000000; }
-    .c-orange { --c: var(--orange); --on: #000000; }
 
     .lead { margin: 22px 0 0; color: var(--muted); font-size: 15px; }
     .booking { margin-top: 20px; border: 1.5px dashed var(--dash); background: #ffffff; }
@@ -383,13 +382,6 @@
           <h3>Online training</h3>
           <span class="price">5,000 ₽</span>
           <span class="meta">2 hours · Zoom or Telemost</span>
-        </label>
-        <label class="choice c-orange">
-          <input type="checkbox" name="sub" value="1">
-          <span class="pick" aria-hidden="true">□</span>
-          <h3>Monthly subscription</h3>
-          <span class="price">+2,000 ₽</span>
-          <span class="meta">Buying a one-month Claude or Codex subscription for you · add to any format</span>
         </label>
       </div>
       <div class="down" aria-hidden="true"></div>
@@ -509,22 +501,21 @@
   <script>
     (function () {
       var BOOKING = {"install": "https://calendly.com/jr-pathfinder/1hr", "online": "https://calendly.com/jr-pathfinder/1hr"};
-      var FORMATS = {"install": {"amount": 3000, "from": true}, "online": {"amount": 5000, "from": false}}, SUB = 2000;
+      var FORMATS = {"install": {"amount": 3000, "from": true}, "online": {"amount": 5000, "from": false}};
       var LOCALE = 'en-US', FROM = 'from ';
       var form = document.querySelectorAll('.choice input');
       var shown = null;
       function money(n) { return n.toLocaleString(LOCALE) + ' ₽'; }
       function update() {
         var f = document.querySelector('input[name=format]:checked').value;
-        var sub = document.querySelector('input[name=sub]').checked;
         form.forEach(function (i) {
           var c = i.closest('.choice');
           c.classList.toggle('on', i.checked);
-          c.querySelector('.pick').textContent = i.type === 'radio' ? (i.checked ? '●' : '○') : (i.checked ? '■' : '□');
+          c.querySelector('.pick').textContent = i.checked ? '●' : '○';
         });
-        var total = FORMATS[f].amount + (sub ? SUB : 0);
+        var total = FORMATS[f].amount;
         document.getElementById('total').textContent = (FORMATS[f].from ? FROM : '') + money(total);
-        document.getElementById('to-pay').href = 'payment.html?f=' + f + (sub ? '&sub=1' : '');
+        document.getElementById('to-pay').href = 'payment.html?f=' + f;
         if (BOOKING[f] && shown !== f) {
           shown = f;
           var url = BOOKING[f] + (BOOKING[f].indexOf('?') < 0 ? '?' : '&') + 'embed=true&hide_gdpr_banner=1';
