@@ -40,7 +40,7 @@ T = {
             mark='Формат → время → оплата',
             step_format='Формат', step_time='Время', step_pay='Оплата',
             formats={
-                'install': ('Установка', 'Claude Code или Codex на вашем компьютере'),
+                'install': ('Установка и начало работы', 'Claude Code или Codex на вашем компьютере'),
                 'online': ('Обучение онлайн', '2 часа · Zoom или Телемост'),
             },
             sub=('Подписка на месяц', 'Добавляется к любому формату'),
@@ -74,7 +74,7 @@ T = {
             mark='Format → time → payment',
             step_format='Format', step_time='Time', step_pay='Payment',
             formats={
-                'install': ('Setup', 'Claude Code or Codex on your computer'),
+                'install': ('Setup and getting started', 'Claude Code or Codex on your computer'),
                 'online': ('Online training', '2 hours · Zoom or Telemost'),
             },
             sub=('Monthly subscription', 'Add to any format'),
