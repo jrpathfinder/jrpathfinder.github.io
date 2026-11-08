@@ -338,7 +338,6 @@
     <a href="index-ru.html">Профиль</a>
     <a class="cta" href="offer-ru.html">Обучение ⟶»</a>
     <a class="current" href="register-ru.html">Запись</a>
-    <a href="payment-ru.html">Оплата</a>
     <a class="lang" href="register.html" hreflang="en" lang="en">EN</a>
   </nav>
 
@@ -361,7 +360,7 @@
 
   <main id="top" class="register">
     <h1 aria-label="Запись"><span class="scramble" aria-hidden="true">Запись</span></h1>
-    <p class="highlight"><span class="mark">Формат → время → оплата</span></p>
+    <p class="highlight"><span class="mark">Формат → время</span></p>
 
     <section class="section first">
     <div class="step-head" id="format">
@@ -394,17 +393,6 @@
     </div>
       <p class="lead">Выберите удобный слот. Подтверждение придёт на почту.</p>
       <div class="booking" id="booking"><p class="empty">Календарь появится здесь после подключения Calendly или Cal.com</p></div>
-      <div class="down" aria-hidden="true"></div>
-    </section>
-
-    <section class="section flow">
-    <div class="step-head" id="pay">
-      <span class="n" aria-hidden="true">③</span>
-      <h2 class="tag">Оплата</h2>
-    </div>
-      <p class="lead">Оплата переводом по СБП после записи. Итого:</p>
-      <span class="total" id="total"></span><br>
-      <a class="cta-link" id="to-pay" href="payment-ru.html">К оплате ⟶»</a>
     </section>
   </main>
 
@@ -513,9 +501,6 @@
           c.classList.toggle('on', i.checked);
           c.querySelector('.pick').textContent = i.checked ? '●' : '○';
         });
-        var total = FORMATS[f].amount;
-        document.getElementById('total').textContent = (FORMATS[f].from ? FROM : '') + money(total);
-        document.getElementById('to-pay').href = 'payment-ru.html?f=' + f;
         if (BOOKING[f] && shown !== f) {
           shown = f;
           var url = BOOKING[f] + (BOOKING[f].indexOf('?') < 0 ? '?' : '&') + 'embed=true&hide_gdpr_banner=1';

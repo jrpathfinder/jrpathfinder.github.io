@@ -20,6 +20,8 @@ CONFIG = {
     'sbp_qr': None,
     # Shown instead of the QR until it is added
     'sbp_phone': '+7 903 138-86-49',
+    # False: no payment step, no Payment nav link, payment pages are not built
+    'payments': False,
 }
 # ---------------------------------------------------------------------------
 
@@ -191,7 +193,9 @@ EXTRA_CSS = '''
 def page(t, kind, title, body, script):
     other_suffix, other_lang, other_code = t['other']
     nav_cur = {'register': 2, 'payment': 3}[kind]
-    links = [t['profile'], 'offer-ru.html', f'register{t["suffix"]}.html', f'payment{t["suffix"]}.html']
+    links = [t['profile'], 'offer-ru.html', f'register{t["suffix"]}.html']
+    if CONFIG['payments']:
+        links.append(f'payment{t["suffix"]}.html')
     nav = ''
     for i, (href, label) in enumerate(zip(links, t['nav'])):
         cls = ' class="current"' if i == nav_cur else (' class="cta"' if i == 1 else '')
@@ -255,8 +259,23 @@ def register(t):
           <span class="meta">{meta}</span>
         </label>
 '''
+    paying = CONFIG['payments']
+    mark = r['mark'] if paying else r['mark'].rsplit(' → ', 1)[0]
+    arrow = '\n      <div class="down" aria-hidden="true"></div>' if paying else ''
+    pay_section = f'''
+
+    <section class="section flow">
+{head('③', r['step_pay'], 'pay')}
+      <p class="lead">{r['pay_note']}</p>
+      <span class="total" id="total"></span><br>
+      <a class="cta-link" id="to-pay" href="payment{s}.html">{r['to_pay']}</a>
+    </section>''' if paying else ''
+    pay_update = f'''
+        var total = FORMATS[f].amount;
+        document.getElementById('total').textContent = (FORMATS[f].from ? FROM : '') + money(total);
+        document.getElementById('to-pay').href = 'payment{s}.html?f=' + f;''' if paying else ''
     body = f'''    <h1 aria-label="{r['h1']}"><span class="scramble" aria-hidden="true">{r['h1']}</span></h1>
-    <p class="highlight"><span class="mark">{r['mark']}</span></p>
+    <p class="highlight"><span class="mark">{mark}</span></p>
 
     <section class="section first">
 {head('①', r['step_format'], 'format')}
@@ -268,16 +287,8 @@ def register(t):
     <section class="section flow">
 {head('②', r['step_time'], 'time')}
       <p class="lead">{r['time_note']}</p>
-      <div class="booking" id="booking"><p class="empty">{r['no_calendar']}</p></div>
-      <div class="down" aria-hidden="true"></div>
-    </section>
-
-    <section class="section flow">
-{head('③', r['step_pay'], 'pay')}
-      <p class="lead">{r['pay_note']}</p>
-      <span class="total" id="total"></span><br>
-      <a class="cta-link" id="to-pay" href="payment{s}.html">{r['to_pay']}</a>
-    </section>'''
+      <div class="booking" id="booking"><p class="empty">{r['no_calendar']}</p></div>{arrow}
+    </section>{pay_section}'''
     script = f'''    (function () {{
       var BOOKING = {json.dumps(CONFIG['booking'])};
       var FORMATS = {json.dumps(FORMATS)};
@@ -291,10 +302,7 @@ def register(t):
           var c = i.closest('.choice');
           c.classList.toggle('on', i.checked);
           c.querySelector('.pick').textContent = i.checked ? '●' : '○';
-        }});
-        var total = FORMATS[f].amount;
-        document.getElementById('total').textContent = (FORMATS[f].from ? FROM : '') + money(total);
-        document.getElementById('to-pay').href = 'payment{s}.html?f=' + f;
+        }});{pay_update}
         if (BOOKING[f] && shown !== f) {{
           shown = f;
           var url = BOOKING[f] + (BOOKING[f].indexOf('?') < 0 ? '?' : '&') + 'embed=true&hide_gdpr_banner=1';
@@ -336,7 +344,7 @@ def payment(t):
 
 def main(root=ROOT):
     for t in T.values():
-        for kind, build in [('register', register), ('payment', payment)]:
+        for kind, build in [('register', register), ('payment', payment)][:2 if CONFIG['payments'] else 1]:
             name = f'{kind}{t["suffix"]}.html'
             open(os.path.join(root, name), 'w').write(build(t))
             print('wrote', name)

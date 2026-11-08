@@ -338,7 +338,6 @@
     <a href="index.html">Profile</a>
     <a class="cta" href="offer-ru.html">Training (RU) ⟶»</a>
     <a class="current" href="register.html">Book</a>
-    <a href="payment.html">Payment</a>
     <a class="lang" href="register-ru.html" hreflang="ru" lang="ru">RU</a>
   </nav>
 
@@ -361,7 +360,7 @@
 
   <main id="top" class="register">
     <h1 aria-label="Book a session"><span class="scramble" aria-hidden="true">Book a session</span></h1>
-    <p class="highlight"><span class="mark">Format → time → payment</span></p>
+    <p class="highlight"><span class="mark">Format → time</span></p>
 
     <section class="section first">
     <div class="step-head" id="format">
@@ -394,17 +393,6 @@
     </div>
       <p class="lead">Pick a slot that suits you. You will get a confirmation by email.</p>
       <div class="booking" id="booking"><p class="empty">The calendar will appear here once Calendly or Cal.com is connected</p></div>
-      <div class="down" aria-hidden="true"></div>
-    </section>
-
-    <section class="section flow">
-    <div class="step-head" id="pay">
-      <span class="n" aria-hidden="true">③</span>
-      <h2 class="tag">Payment</h2>
-    </div>
-      <p class="lead">Payment by SBP transfer after booking. Total:</p>
-      <span class="total" id="total"></span><br>
-      <a class="cta-link" id="to-pay" href="payment.html">Go to payment ⟶»</a>
     </section>
   </main>
 
@@ -513,9 +501,6 @@
           c.classList.toggle('on', i.checked);
           c.querySelector('.pick').textContent = i.checked ? '●' : '○';
         });
-        var total = FORMATS[f].amount;
-        document.getElementById('total').textContent = (FORMATS[f].from ? FROM : '') + money(total);
-        document.getElementById('to-pay').href = 'payment.html?f=' + f;
         if (BOOKING[f] && shown !== f) {
           shown = f;
           var url = BOOKING[f] + (BOOKING[f].indexOf('?') < 0 ? '?' : '&') + 'embed=true&hide_gdpr_banner=1';
