@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ИИ агенты с нуля</title>
+  <meta name="description" content="Программа изучения ИИ-агентов с нуля: 8 шагов, бесплатные курсы Claude Academy и практика на каждом шаге.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #000000;
+      --muted: #6b6b6b;
+      --highlight: #cc7c5e;
+      --on-highlight: #000000;
+      --blue: #2f62d0;
+      --orange: #ff5a36;
+      --yellow: #cc7c5e;
+      --dash: #000000;
+      --panel: #f4f1ec;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #000000; --ink: #ffffff; --muted: #a3a3a3; --blue: #7aa2ff; --dash: #ffffff; --panel: #17130f;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #000000; --ink: #ffffff; --muted: #a3a3a3; --blue: #7aa2ff; --dash: #ffffff; --panel: #17130f;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      letter-spacing: .14em;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    a { color: inherit; }
+
+    .side {
+      position: fixed; top: 24px; left: 20px; z-index: 3;
+      display: flex; flex-direction: column; gap: 18px;
+      font-size: 15px; text-transform: uppercase;
+    }
+    .side a { text-decoration: none; }
+    .side a:hover { text-decoration: underline; text-underline-offset: 5px; }
+    .side .current { color: var(--blue); }
+    .side .current::before {
+      content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 14px;
+      border-radius: 50%; background: var(--blue); vertical-align: 1px;
+    }
+    .side .cta { text-decoration: underline; text-underline-offset: 5px; }
+
+    .glyphs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+    .glyphs span { position: absolute; font-size: 18px; letter-spacing: 0; animation: drift 9s ease-in-out infinite alternate; }
+    .glyphs .p { color: var(--blue); }
+    .glyphs .o { color: var(--orange); }
+    .glyphs .y { color: var(--yellow); }
+    @keyframes drift { from { transform: translate(0, 0); } to { transform: translate(6px, -10px); } }
+
+    /* Hero: always dark, like a workshop at night */
+    .hero {
+      position: relative; z-index: 1;
+      margin-left: 250px;
+      min-height: max(680px, 100vh);
+      overflow: hidden;
+      color: #fff;
+      background:
+        radial-gradient(38% 46% at 80% 72%, rgba(226,130,43,.30), transparent 70%),
+        radial-gradient(30% 40% at 14% 30%, rgba(33,118,196,.22), transparent 70%),
+        radial-gradient(46% 56% at 50% 50%, rgba(46,24,60,.75), transparent 75%),
+        #07080c;
+    }
+    .stage { position: absolute; top: 0; bottom: 34px; left: 20%; width: 58%; pointer-events: none; }
+    .stage canvas { display: block; width: 100%; height: 100%; }
+
+    .hero-text { position: absolute; top: 56px; left: 44px; z-index: 2; }
+    .hero h1 {
+      margin: 0; font-weight: 300; text-transform: uppercase;
+      font-size: clamp(36px, 4.6vw, 64px); letter-spacing: .14em; line-height: 1.12;
+    }
+    .hero h1 b { font-weight: 700; color: #cc7c5e; }
+
+    .ribbon { position: absolute; left: 0; top: 48%; z-index: 2; color: #000; font-weight: 700; text-transform: uppercase; font-size: clamp(20px, 2.5vw, 34px); letter-spacing: .03em; line-height: 1; }
+    .ribbon span { position: relative; display: table; padding: 10px 16px; background: #cc7c5e; }
+    .ribbon .r1 { margin-left: 44px; }
+    .ribbon .r2 { margin-left: 104px; }
+    .ribbon .r3 { margin-left: 62px; }
+    .ribbon .r1::after, .ribbon .r3::before {
+      content: ""; position: absolute; top: 12%; bottom: 12%; width: 130px;
+      background: repeating-linear-gradient(180deg, #cc7c5e 0 3px, transparent 3px 8px);
+    }
+    .ribbon .r1::after { left: 100%; }
+    .ribbon .r3::before { right: 100%; width: 62px; }
+
+    .hero-note { position: absolute; top: 60px; right: 40px; z-index: 2; text-align: right; color: #f0c98a; text-transform: uppercase; font-size: clamp(13px, 1.25vw, 18px); line-height: 1.5; }
+
+    .rugs { position: absolute; right: 22px; top: 33%; z-index: 2; width: 316px; height: 316px; }
+    .rugs canvas { position: absolute; width: 76px; height: 76px; image-rendering: pixelated; box-shadow: 0 8px 20px rgba(0,0,0,.55); }
+
+    .stats { position: absolute; left: 44px; right: 40px; bottom: 58px; z-index: 2; display: flex; justify-content: space-between; gap: 20px; text-transform: uppercase; font-size: 13px; line-height: 1.3; }
+    .stats div { display: flex; align-items: center; gap: 10px; }
+    .stats b { font-size: clamp(28px, 3.2vw, 44px); font-weight: 500; color: #7df0ff; letter-spacing: .04em; }
+
+    .rug-strip { height: 34px; background-repeat: repeat-x; background-size: auto 34px; image-rendering: pixelated; }
+    .hero .rug-strip { position: absolute; left: 0; right: 0; bottom: 0; }
+
+    main { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 96px 60px 130px 300px; }
+
+    .tag-title { display: inline-block; margin: 0 0 26px; padding: 4px 12px; background: var(--highlight); color: var(--on-highlight); font-size: 15px; font-weight: 500; text-transform: uppercase; }
+    .lead { max-width: 700px; margin: 0; font-size: 17px; line-height: 1.75; letter-spacing: .03em; }
+    .lead + .lead { margin-top: 16px; }
+
+    pre.loop {
+      margin: 36px 0 0; padding: 24px 26px; border: 1.5px dashed var(--dash);
+      font: inherit; font-size: 14px; line-height: 1.75; letter-spacing: .02em; white-space: pre-wrap; background: var(--bg);
+    }
+    pre.loop i { font-style: normal; color: var(--muted); }
+    pre.loop b { font-weight: 500; color: var(--blue); }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 26px; margin: 28px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); letter-spacing: .05em; }
+
+    .steps { margin: 84px 0 0; padding: 0; list-style: none; }
+    .step { position: relative; padding: 30px 30px 32px; border: 1.5px dashed var(--dash); background: var(--bg); }
+    .step + .step { margin-top: 62px; }
+    .step + .step::before {
+      content: ""; position: absolute; left: 40px; top: -60px; height: 58px; border-left: 2px dashed var(--orange);
+    }
+    .step + .step::after { content: "▼"; position: absolute; left: 33px; top: -19px; font-size: 13px; letter-spacing: 0; color: var(--orange); }
+    .step .num { color: var(--blue); font-size: 15px; text-transform: uppercase; }
+    .step h2 { margin: 6px 0 14px; font-size: clamp(20px, 2.1vw, 26px); font-weight: 400; line-height: 1.35; text-transform: uppercase; }
+    .step p { margin: 0 0 14px; font-size: 15.5px; line-height: 1.75; letter-spacing: .03em; }
+    .step ul.learn { margin: 0 0 20px; padding: 0; list-style: none; font-size: 15px; line-height: 1.7; letter-spacing: .03em; }
+    .step ul.learn li { padding-left: 22px; position: relative; }
+    .step ul.learn li::before { content: "*"; position: absolute; left: 0; color: var(--orange); }
+
+    .res { margin: 0 0 22px; padding: 0; list-style: none; font-size: 15px; letter-spacing: .03em; }
+    .res li { display: flex; align-items: baseline; gap: 12px; padding: 7px 0; }
+    .res a { text-underline-offset: 4px; overflow-wrap: anywhere; }
+    .res a:hover { color: var(--blue); }
+    .kind { flex: none; width: 92px; padding: 1px 0; text-align: center; font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+    .k-a { background: var(--highlight); color: #000; }
+    .k-d { background: var(--blue); color: #fff; }
+    :root[data-theme="dark"] .k-d { color: #000; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .k-d { color: #000; } }
+
+    .do { margin: 0 !important; padding: 14px 18px; background: var(--panel); }
+    .do b { font-weight: 500; text-transform: uppercase; letter-spacing: .1em; color: var(--orange); }
+
+    .final { margin-top: 84px; text-align: center; }
+    .final .lead { margin: 0 auto; }
+    .cta-link { display: inline-block; margin-top: 40px; font-size: 18px; text-transform: uppercase; text-decoration: underline; text-underline-offset: 6px; }
+    .cta-link:hover { color: var(--blue); }
+    .final .rug-strip { margin-bottom: 56px; }
+
+    .theme {
+      position: fixed; left: 2px; bottom: 2px; z-index: 3; width: 64px; height: 64px;
+      border: 1px dashed var(--dash); background: var(--bg); color: var(--ink);
+      font: inherit; font-size: 26px; letter-spacing: 0; cursor: pointer;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .glyphs span { animation: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    @media (max-width: 1180px) {
+      .hero-note { display: none; }
+      .rugs { transform: scale(.8); transform-origin: right center; }
+      .ribbon { top: 40%; }
+    }
+    @media (max-width: 900px) {
+      .side { position: static; flex-direction: row; flex-wrap: wrap; gap: 12px 20px; padding: 20px 16px; font-size: 13px; }
+      .hero { margin-left: 0; min-height: 0; display: flex; flex-direction: column; padding-bottom: 34px; }
+      .hero-text { position: static; padding: 34px 16px 0; order: 1; }
+      .ribbon { position: static; order: 2; margin: 26px 0 0; font-size: 22px; }
+      .stage { order: 3; }
+      .rugs { order: 4; }
+      .stats { order: 5; }
+      .ribbon .r1 { margin-left: 16px; } .ribbon .r2 { margin-left: 60px; } .ribbon .r3 { margin-left: 34px; }
+      .ribbon .r1::after { width: 60px; } .ribbon .r3::before { width: 34px; }
+      .stage { position: relative; left: 0; width: 100%; height: 360px; bottom: auto; top: auto; }
+      .rugs { position: relative; top: auto; right: auto; margin: 0 auto; transform: none; width: 316px; height: 316px; max-width: 100%; }
+      .stats { position: static; flex-direction: column; gap: 10px; padding: 20px 16px 24px; }
+      main { padding: 60px 16px 120px; }
+      .step { padding: 22px 16px 24px; }
+      .step + .step::before { left: 26px; } .step + .step::after { left: 19px; }
+      .res li { flex-direction: column; gap: 4px; }
+      .theme { width: 48px; height: 48px; font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="side" aria-label="Разделы">
+    <a class="current" href="#top">ИИ агенты</a>
+    <a href="#base">С чего начать</a>
+    <a href="#program">Программа</a>
+    <a class="cta" href="register-ru.html">Записаться ⟶»</a>
+    <a href="offer-ru.html">Обучение</a>
+    <a href="index-ru.html">Профиль</a>
+  </nav>
+
+  <div class="glyphs" aria-hidden="true">
+    <span class="p" style="top:18%;left:30%">ℕ</span>
+    <span class="o" style="top:32%;left:92%">∀</span>
+    <span class="y" style="top:49%;left:24%">¬</span>
+    <span class="o" style="top:63%;left:95%">∞</span>
+    <span class="p" style="top:78%;left:21%">∅</span>
+    <span class="y" style="top:91%;left:90%">√</span>
+  </div>
+
+  <header class="hero" id="top">
+    <div class="stage" aria-hidden="true"><canvas id="medal"></canvas></div>
+
+    <div class="hero-text">
+      <h1><b>{</b> ИИ<br>агенты <b>}</b></h1>
+    </div>
+
+    <p class="ribbon" aria-label="С нуля до своего агента"><span class="r1" aria-hidden="true">С нуля</span><span class="r2" aria-hidden="true">до своего</span><span class="r3" aria-hidden="true">агента</span></p>
+
+    <p class="hero-note">Программа изучения<br>с Claude Academy</p>
+
+    <div class="rugs" id="rugs" aria-hidden="true"></div>
+
+    <div class="stats">
+      <div><b>8</b><span>шагов<br>от нуля</span></div>
+      <div><b>13</b><span>бесплатных курсов<br>Claude Academy</span></div>
+      <div><b>1</b><span>свой агент<br>в конце</span></div>
+    </div>
+
+    <div class="rug-strip" aria-hidden="true"></div>
+  </header>
+
+  <main>
+    <section id="base">
+      <p class="tag-title">Шаг ноль: что такое агент</p>
+      <p class="lead">Обычный чат отвечает один раз. Агент получает цель и сам решает, что делать дальше: читает файлы, запускает команды, смотрит на результат и пробует снова, пока задача не будет готова.</p>
+      <p class="lead">Вся идея помещается в несколько строк:</p>
+<pre class="loop"><b>цель</b> = "разобрать отчёт и прислать итоги"
+
+<b>пока</b> задача не готова:
+    ответ = модель(цель + всё, что уже произошло)   <i># думает</i>
+    <b>если</b> ответ просит инструмент:
+        результат = выполнить(инструмент)           <i># действует</i>
+        запомнить(результат)                        <i># смотрит, что вышло</i>
+    <b>иначе</b>:
+        вернуть ответ</pre>
+      <p class="lead" style="margin-top:28px">Модель, инструменты и цикл. Всё остальное в этой программе нужно, чтобы такой цикл работал надёжно, не ошибался молча и не стоил лишних денег.</p>
+      <ul class="legend">
+        <li><span class="kind k-a" style="display:inline-block">Academy</span> бесплатный курс Claude Academy</li>
+        <li><span class="kind k-d" style="display:inline-block">Читать</span> документация или статья</li>
+        <li>Ориентир: 6–8 недель по 4–5 часов. Шаги 1–4 подходят и без навыков программирования.</li>
+      </ul>
+    </section>
+
+    <ol class="steps" id="program">
+      <li class="step">
+        <span class="num">Шаг 1</span>
+        <h2>Как думает модель</h2>
+        <p>Прежде чем строить агентов, нужно понимать, на что способна модель и где она ошибается уверенным тоном.</p>
+        <ul class="learn">
+          <li>токены, контекст и почему модель «забывает»</li>
+          <li>что такое галлюцинации и как их проверять</li>
+          <li>какие задачи стоит поручать ИИ, а какие нет</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/claude-101">Claude 101</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/ai-capabilities-and-limitations">AI capabilities and limitations</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/ai-fluency-framework-foundations">AI Fluency: Framework and foundations</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> дайте Claude задачу из своей работы и найдите в ответе минимум одну ошибку или неподтверждённое утверждение.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 2</span>
+        <h2>Как ставить задачи</h2>
+        <p>Агент выполняет то, что вы описали, а не то, что имели в виду. Хорошая постановка задачи экономит часы.</p>
+        <ul class="learn">
+          <li>роль, контекст, ограничения и формат результата</li>
+          <li>примеры вместо длинных объяснений</li>
+          <li>системный промпт и как его улучшать</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-d">Читать</span><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview">Prompt engineering: обзор</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://github.com/anthropics/courses">Открытые курсы Anthropic на GitHub</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> напишите инструкцию для одной повторяющейся задачи и улучшайте её, пока три запуска подряд не дадут нужный результат.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 3</span>
+        <h2>Первый настоящий агент: Claude Code</h2>
+        <p>Лучший способ понять агентов: поработать с готовым. Claude Code читает проект, меняет файлы, запускает команды и проверяет себя.</p>
+        <ul class="learn">
+          <li>установка и первый запуск</li>
+          <li>разрешения: что агенту можно делать без вопроса</li>
+          <li>CLAUDE.md как постоянная память о проекте</li>
+          <li>режим планирования и проверка результата</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/claude-code-101">Claude Code 101</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/claude-code-in-action">Claude Code in Action</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://docs.claude.com/en/docs/claude-code/overview">Документация Claude Code</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> решите с Claude Code реальную задачу: отчёт из таблицы, небольшой сайт или разбор папки с файлами.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 4</span>
+        <h2>Навыки и подагенты</h2>
+        <p>Когда одна и та же работа повторяется, её стоит оформить один раз. Большие задачи лучше делить между отдельными подагентами.</p>
+        <ul class="learn">
+          <li>Skills: упакованные инструкции под конкретную работу</li>
+          <li>подагенты: отдельный контекст для отдельной задачи</li>
+          <li>когда разделение помогает, а когда только мешает</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/introduction-to-agent-skills">Introduction to agent skills</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/introduction-to-subagents">Introduction to subagents</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> превратите инструкцию из шага 2 в Skill и запустите её в новой сессии.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 5</span>
+        <h2>Инструменты и MCP</h2>
+        <p>Агент полезен настолько, насколько полезны его инструменты. MCP это общий способ подключить к нему почту, базы данных, таблицы и внутренние системы.</p>
+        <ul class="learn">
+          <li>как модель вызывает инструмент</li>
+          <li>MCP: серверы, инструменты, ресурсы и промпты</li>
+          <li>как описать инструмент так, чтобы агент не ошибался</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/introduction-to-model-context-protocol">Introduction to Model Context Protocol</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/model-context-protocol-advanced-topics">MCP: Advanced topics</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing tools for agents</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://modelcontextprotocol.io/introduction">Спецификация и примеры MCP</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> напишите с помощью Claude Code свой MCP-сервер с одним инструментом и подключите его к агенту.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 6</span>
+        <h2>Свой агент в коде</h2>
+        <p>С этого шага нужен код. Основы программирования можно подтягивать вместе с Claude Code: цикл из начала страницы теперь пишем сами.</p>
+        <ul class="learn">
+          <li>запросы к Claude API и ключи</li>
+          <li>вызов инструментов и цикл агента</li>
+          <li>Agent SDK: готовый цикл вместо самописного</li>
+          <li>стоимость запросов и кэширование промптов</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/claude-platform-101">Claude Platform 101</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/building-with-the-claude-api">Building with the Claude API</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://docs.claude.com/en/docs/agent-sdk/overview">Agent SDK: обзор</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> соберите агента примерно на 50 строк с двумя инструментами, а затем перепишите его на Agent SDK.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 7</span>
+        <h2>Архитектура и контекст</h2>
+        <p>Не каждой задаче нужен агент: часто надёжнее простая цепочка шагов. Здесь учимся выбирать самое простое решение, которое работает.</p>
+        <ul class="learn">
+          <li>цепочки, маршрутизация и параллельная работа</li>
+          <li>оркестратор с исполнителями, проверяющий и исполнитель</li>
+          <li>что держать в контексте, а что выносить в файлы</li>
+          <li>как распределить работу между людьми и агентами</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-d">Читать</span><a href="https://www.anthropic.com/engineering/building-effective-agents">Building effective agents</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective context engineering</a></li>
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/building-effective-human-agent-teams">Building effective human-agent teams</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> нарисуйте схему своего агента и уберите из неё всё, без чего он справится.</p>
+      </li>
+
+      <li class="step">
+        <span class="num">Шаг 8</span>
+        <h2>Качество и безопасность</h2>
+        <p>Агент, который работает на одном примере, ещё не готов. Перед запуском нужно измерить качество и ограничить, что он может сломать.</p>
+        <ul class="learn">
+          <li>оценка: набор задач с понятным критерием успеха</li>
+          <li>инъекции промптов через письма, сайты и документы</li>
+          <li>минимальные права и подтверждение человеком опасных действий</li>
+          <li>логи, лимиты расходов и остановка зацикливания</li>
+        </ul>
+        <ul class="res">
+          <li><span class="kind k-a">Academy</span><a href="https://academy.claude.com/courses/introduction-to-evals">Introduction to evals</a></li>
+          <li><span class="kind k-d">Читать</span><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents">Demystifying evals for AI agents</a></li>
+        </ul>
+        <p class="do"><b>Практика:</b> напишите 10 проверочных задач для своего агента и прогоняйте их после каждого изменения.</p>
+      </li>
+    </ol>
+
+    <section class="final">
+      <div class="rug-strip" aria-hidden="true"></div>
+      <p class="tag-title">Итог</p>
+      <p class="lead">В конце у вас будет свой агент, который решает реальную задачу, с понятными правами, логами и проверками. Если хотите пройти первые шаги вместе, разберём установку и ваши задачи на личной сессии.</p>
+      <a class="cta-link" href="register-ru.html">Записаться ⟶»</a>
+    </section>
+  </main>
+
+  <button class="theme" type="button" aria-label="Сменить тему">☀</button>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var btn = document.querySelector('.theme');
+      function isDark() {
+        var t = root.getAttribute('data-theme');
+        if (t) return t === 'dark';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      function sync() { btn.textContent = isDark() ? '☾' : '☀'; }
+      try {
+        var saved = localStorage.getItem('theme');
+        if (saved) root.setAttribute('data-theme', saved);
+      } catch (e) {}
+      sync();
+      btn.addEventListener('click', function () {
+        var next = isDark() ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        sync();
+      });
+    })();
+  </script>
+
+  <script>
+    /* Borjgali medallion in cloisonné enamel that turns into a code blueprint, and Caucasian rugs woven from code. All drawn here. */
+    (function () {
+      var TAU = Math.PI * 2;
+      var FONT = '"JetBrains Mono", Menlo, monospace';
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function rng(s) { return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+      function make(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+      function pick(a, r) { return a[Math.floor(r() * a.length)]; }
+
+      /* ---- Medallion ---- */
+      var S = 1000, O = S / 2, UNIT = 480, RINGS = 12, ARMS = 7, PER = 8, SEG = ARMS * PER;
+      var WIDTH = [2, 3, 4, 4, 5, 5, 5, 5, 4, 3, 2, 1];
+      function pt(k, j) {
+        var u = k / RINGS, r = (.15 + .65 * u) * UNIT, a = TAU * j / SEG + 2.5 * Math.pow(u, 1.15);
+        return [O + r * Math.cos(a), O + r * Math.sin(a)];
+      }
+      function tri(g, a, b, c, fill, wire, lw) {
+        g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(c[0], c[1]); g.closePath();
+        g.fillStyle = fill; g.fill(); g.strokeStyle = wire; g.lineWidth = lw; g.stroke();
+      }
+      function polar(u, a) { return [O + u * UNIT * Math.cos(a), O + u * UNIT * Math.sin(a)]; }
+      function isArm(k, j) { return ((j % PER) + PER) % PER < WIDTH[k]; }
+
+      function enamel() {
+        var c = make(S, S), g = c.getContext('2d'), r = rng(7), wire = '#e9c675', k, j, i;
+        g.beginPath(); g.arc(O, O, UNIT, 0, TAU); g.fillStyle = '#0b0a10'; g.fill();
+        var gold = ['#f2c552', '#e7b54e', '#ffd978', '#dc9a31'], red = ['#c3202c', '#a81a2b', '#dd3a30'];
+        var cool = ['#17379f', '#2049c4', '#163088', '#0f7f9d', '#21a9c0'];
+        for (k = 0; k < RINGS; k++) for (j = 0; j < SEG; j++) {
+          var a = pt(k, j), b = pt(k, j + 1), d = pt(k + 1, j), e = pt(k + 1, j + 1);
+          var arm = isArm(k, j), set = arm ? (k > 8 ? red : gold) : cool;
+          tri(g, a, b, e, pick(set, r), wire, 1.5);
+          tri(g, a, e, d, pick(set, r), wire, 1.5);
+        }
+        /* hub */
+        g.beginPath(); g.arc(O, O, .15 * UNIT, 0, TAU); g.fillStyle = '#a81a2b'; g.fill();
+        for (i = 0; i < ARMS; i++) {
+          var t = TAU * i / ARMS;
+          tri(g, [O, O], polar(.15, t), polar(.09, t + TAU / 14), i % 2 ? '#ffd978' : '#f2c552', '#6b3a10', 1.5);
+          tri(g, [O, O], polar(.09, t + TAU / 14), polar(.15, t + TAU / 7), '#c3202c', '#6b3a10', 1.5);
+        }
+        /* zigzag and pearl bands */
+        var Z = 84;
+        for (i = 0; i < Z; i++) {
+          var x0 = TAU * i / Z, x1 = TAU * (i + 1) / Z, xm = (x0 + x1) / 2;
+          tri(g, polar(.80, x0), polar(.80, x1), polar(.875, xm), '#f2c552', '#7a4a17', 1.5);
+          tri(g, polar(.875, xm), polar(.875, xm + TAU / Z), polar(.80, x1), i % 2 ? '#c3202c' : '#17379f', '#7a4a17', 1.5);
+        }
+        g.beginPath(); g.arc(O, O, .925 * UNIT, 0, TAU); g.lineWidth = .05 * UNIT; g.strokeStyle = '#0f7f9d'; g.stroke();
+        for (i = 0; i < 70; i++) {
+          var p = polar(.925, TAU * i / 70);
+          g.beginPath(); g.arc(p[0], p[1], 6, 0, TAU); g.fillStyle = i % 2 ? '#fff3d0' : '#f2c552'; g.fill();
+        }
+        g.beginPath(); g.arc(O, O, .975 * UNIT, 0, TAU); g.lineWidth = .05 * UNIT; g.strokeStyle = '#d9a23c'; g.stroke();
+        return c;
+      }
+
+      /* Light that stays still while the medallion turns */
+      function sheen() {
+        var c = make(S, S), g = c.getContext('2d');
+        var a = g.createRadialGradient(O * .68, O * .6, 20, O, O, UNIT);
+        a.addColorStop(0, 'rgba(255,245,215,.34)'); a.addColorStop(.45, 'rgba(255,245,215,0)');
+        a.addColorStop(.75, 'rgba(0,0,0,.08)'); a.addColorStop(1, 'rgba(0,0,0,.55)');
+        g.beginPath(); g.arc(O, O, UNIT, 0, TAU); g.fillStyle = a; g.fill();
+        return c;
+      }
+
+      function blueprint() {
+        var c = make(S, S), g = c.getContext('2d'), k, j, i;
+        g.beginPath(); g.arc(O, O, UNIT, 0, TAU); g.fillStyle = 'rgba(3,18,26,.88)'; g.fill();
+        g.strokeStyle = 'rgba(125,240,255,.8)'; g.lineWidth = 1.6;
+        [.15, .8, .875, .975, 1].forEach(function (u) { g.beginPath(); g.arc(O, O, u * UNIT, 0, TAU); g.stroke(); });
+        g.lineWidth = 1.8;
+        for (j = 0; j < SEG; j += PER) {
+          var a = [], b = [];
+          for (k = 0; k < RINGS; k++) { a.push(pt(k, j)); a.push(pt(k + 1, j)); b.push(pt(k, j + WIDTH[k])); b.push(pt(k + 1, j + WIDTH[k])); }
+          g.beginPath(); g.moveTo(a[0][0], a[0][1]);
+          a.forEach(function (p) { g.lineTo(p[0], p[1]); });
+          b.reverse().forEach(function (p) { g.lineTo(p[0], p[1]); });
+          g.closePath(); g.fillStyle = 'rgba(125,240,255,.07)'; g.fill(); g.stroke();
+        }
+        g.strokeStyle = 'rgba(125,240,255,.45)'; g.lineWidth = 1.2;
+        for (i = 0; i < 180; i++) {
+          var t = TAU * i / 180, q = polar(.885, t), w = polar(i % 10 ? .905 : .96, t);
+          g.beginPath(); g.moveTo(q[0], q[1]); g.lineTo(w[0], w[1]); g.stroke();
+        }
+        return c;
+      }
+
+      var CODE = [
+        'async function runAgent(goal, tools) {', '  const history = [user(goal)];', '  while (true) {',
+        '    const reply = await claude(history, tools);', '    history.push(reply);',
+        '    if (reply.stop_reason !== "tool_use") {', '      return reply.text;', '    }',
+        '    for (const call of reply.tool_calls) {', '      const out = await tools[call.name](call.input);',
+        '      history.push(toolResult(call.id, out));', '    }', '  }', '}', '',
+        '// ბორჯღალი: seven arms, one loop', 'const arms = 7, turn = 2.5;',
+        'for (let k = 0; k < rings; k++) weave(k);', 'await permissions.ask("rm -rf build/");', 'evals.run(cases, { limit: 10 });', ''
+      ];
+
+      var cv = document.getElementById('medal'), ctx = cv.getContext('2d');
+      var EN = enamel(), SH = sheen(), BP = blueprint();
+      var W = 0, H = 0, dpr = 1, shards = [], last = 0;
+      var jag = [], jr = rng(31), JN = 16;
+      for (var q = 0; q <= JN; q++) jag.push((q % 2 ? 1 : -1) * (.03 + jr() * .1));
+      var colors = ['#21a9c0', '#2049c4', '#f2c552', '#c3202c', '#7df0ff'];
+      var floaters = [[-1.28, -.42, 13, 0], [1.2, .5, 15, 1.4], [-1.08, .76, 11, 2.5], [1.14, -.74, 10, 4.1], [.3, 1.2, 12, 5.2]];
+
+      function size() {
+        var b = cv.getBoundingClientRect();
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = b.width; H = b.height;
+        cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      }
+
+      function edge(cx, cy, R, split, t, flip) {
+        var top = cy - R * 1.08, step = R * 2.16 / JN, i;
+        ctx.beginPath();
+        ctx.moveTo(flip ? W + 10 : -10, top);
+        for (i = 0; i <= JN; i++) ctx.lineTo(split + jag[i] * R * (1 + .25 * Math.sin(t * .0013 + i)), top + i * step);
+        ctx.lineTo(flip ? W + 10 : -10, top + R * 2.16);
+        ctx.closePath();
+      }
+
+      function draw(t) {
+        var dt = Math.min(50, t - last || 16); last = t;
+        var wide = window.innerWidth > 900;
+        var R = wide ? Math.min(W * .40, H * .32) : Math.min(W * .43, H * .44), cx = W * (wide ? .52 : .5), cy = H * (wide ? .49 : .5);
+        var split = cx + R * (still ? .05 : .08 + .55 * Math.sin(t * .00042));
+        var rot = still ? 0 : t * .00009;
+        var D = R / UNIT * S / 2 * 2, i;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+
+        var glow = ctx.createRadialGradient(cx, cy, R * .7, cx, cy, Math.min(R * 1.5, cx, W - cx, cy, H - cy));
+        glow.addColorStop(0, 'rgba(33,169,192,.20)'); glow.addColorStop(1, 'rgba(33,169,192,0)');
+        ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+        ctx.save(); edge(cx, cy, R, split, t, false); ctx.clip();
+        ctx.translate(cx, cy); ctx.rotate(rot); ctx.drawImage(EN, -D / 2, -D / 2, D, D); ctx.rotate(-rot);
+        ctx.drawImage(SH, -D / 2, -D / 2, D, D);
+        ctx.restore();
+
+        ctx.save(); edge(cx, cy, R, split, t, true); ctx.clip();
+        ctx.translate(cx, cy); ctx.rotate(rot); ctx.drawImage(BP, -D / 2, -D / 2, D, D); ctx.rotate(-rot);
+        ctx.beginPath(); ctx.arc(0, 0, R * .78, 0, TAU); ctx.clip();
+        var fs = Math.max(9, R * .045), lh = fs * 1.55, off = still ? 0 : (t * .018) % (lh * CODE.length);
+        ctx.font = fs + 'px ' + FONT; ctx.textBaseline = 'middle';
+        var rows = Math.ceil(R * 1.7 / lh) + 2;
+        for (i = 0; i < rows; i++) {
+          var y = -R * .85 + i * lh - (off % lh);
+          var s = CODE[(i + Math.floor(off / lh)) % CODE.length];
+          ctx.fillStyle = s.indexOf('claude') > 0 || s.indexOf('//') === 0 ? 'rgba(255,217,120,.95)' : 'rgba(125,240,255,.72)';
+          ctx.fillText(s, -R * .74, y);
+        }
+        ctx.restore();
+
+        if (!still) {
+          if (shards.length < 70 && Math.random() < .55) {
+            var yy = (Math.random() * 2 - 1) * R * .9, half = Math.sqrt(Math.max(0, R * R - yy * yy));
+            if (Math.abs(split - cx) < half) shards.push({
+              x: split, y: cy + yy, vx: .03 + Math.random() * .09, vy: (Math.random() - .5) * .05,
+              a: Math.random() * TAU, va: (Math.random() - .5) * .006, s: 4 + Math.random() * R * .05,
+              c: colors[Math.floor(Math.random() * colors.length)], life: 1
+            });
+          }
+          shards = shards.filter(function (p) { return p.life > 0; });
+          shards.forEach(function (p) {
+            p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; p.life -= dt / 1700;
+            ctx.save(); ctx.globalAlpha = Math.max(0, p.life); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+            ctx.beginPath(); ctx.moveTo(p.s, 0); ctx.lineTo(-p.s * .7, p.s * .7); ctx.lineTo(-p.s * .6, -p.s * .8); ctx.closePath();
+            ctx.fillStyle = p.c; ctx.fill(); ctx.restore();
+          });
+        }
+
+        floaters.forEach(function (f) {
+          var b = still ? 0 : Math.sin(t * .0007 + f[3]) * 10, x = cx + f[0] * R, y = cy + f[1] * R + b, s = f[2];
+          ctx.beginPath(); ctx.moveTo(x, y - s); ctx.lineTo(x + s, y + s * .8); ctx.lineTo(x - s, y + s * .8); ctx.closePath();
+          ctx.fillStyle = 'rgba(33,169,192,.75)'; ctx.fill();
+        });
+      }
+
+      /* ---- Rugs: every knot is a pixel, and every pixel can turn into a character ---- */
+      var N = 33, K = 8;
+      var PAL = [
+        { b: '#7d1c22', f: '#a4262c', a: '#14305e', c: '#efe3c8', d: '#d59a3a', e: '#1f6d6b' },
+        { b: '#14305e', f: '#1c447f', a: '#a4262c', c: '#efe3c8', d: '#d59a3a', e: '#2b8a86' },
+        { b: '#efe3c8', f: '#d59a3a', a: '#7d1c22', c: '#14305e', d: '#efe3c8', e: '#a4262c' },
+        { b: '#1f6d6b', f: '#2b8a86', a: '#efe3c8', c: '#7d1c22', d: '#d59a3a', e: '#14305e' }
+      ];
+      function knot(x, y, type, p) {
+        var ring = Math.min(x, y, N - 1 - x, N - 1 - y), dx = Math.abs(x - 16), dy = Math.abs(y - 16), m = dx + dy, v;
+        if (ring === 0) return p.b;
+        if (ring === 1) return p.c;
+        if (ring <= 4) { v = (x + y) % 6; if (ring === 4) return p.c; return v < 2 ? p.a : v < 4 ? p.d : p.b; }
+        if (type === 0) { /* hooked diamond */
+          if (m < 3) return p.c; if (m < 6) return p.a; if (m < 8 && (dx % 2 === 0)) return p.d; if (m < 10) return p.c; if (m < 12) return p.a;
+          if (m === 12 && (dx % 3 === 0)) return p.d;
+        } else if (type === 1) { /* eight-point star */
+          v = Math.max(dx, dy) + Math.min(dx, dy) * .55;
+          if (v < 3) return p.d; if (v < 6) return p.c; if (v < 8) return p.a; if (v < 10) return p.c; if (v < 11) return p.e;
+        } else if (type === 2) { /* Georgian bolnisi-style cross */
+          var arm = (Math.min(dx, dy) < 2 + Math.max(dx, dy) * .32) && Math.max(dx, dy) < 10;
+          if (arm) return Math.max(dx, dy) < 3 ? p.d : p.c;
+          if (Math.min(dx, dy) < 4 + Math.max(dx, dy) * .32 && Math.max(dx, dy) < 11) return p.a;
+          if (dx > 7 && dy > 7 && dx + dy < 21 && (dx + dy) % 3 === 0) return p.d;
+        } else { /* three stacked medallions */
+          var c2 = Math.min(Math.abs(y - 9) + dx, Math.abs(y - 16) + dx, Math.abs(y - 23) + dx);
+          if (c2 < 2) return p.d; if (c2 < 4) return p.c; if (c2 < 5) return p.a;
+          if (dx > 7 && (y % 4 < 2) && (x % 4 < 2)) return p.e;
+        }
+        return (x + y * 3) % 17 === 0 ? p.e : p.f;
+      }
+      function shade(hex, f) {
+        var n = parseInt(hex.slice(1), 16);
+        return 'rgb(' + [n >> 16, n >> 8 & 255, n & 255].map(function (v) { return Math.min(255, Math.round(v * f)); }).join(',') + ')';
+      }
+      function rug(type, pal, seed) {
+        var a = make(N * K, N * K), b = make(N * K, N * K), g = a.getContext('2d'), h = b.getContext('2d'), r = rng(seed), x, y;
+        var chars = '01{}<>/*=+;()';
+        h.fillStyle = '#050a10'; h.fillRect(0, 0, N * K, N * K);
+        h.font = (K + 1) + 'px ' + FONT; h.textBaseline = 'top';
+        for (y = 0; y < N; y++) for (x = 0; x < N; x++) {
+          var col = knot(x, y, type, pal);
+          g.fillStyle = shade(col, .9 + r() * .18); g.fillRect(x * K, y * K, K, K);
+          h.fillStyle = shade(col, 1.25);
+          h.fillText(chars[Math.floor(r() * chars.length)], x * K + 1, y * K - 1);
+        }
+        return { a: a, b: b };
+      }
+      /* place = [col, row] on a 4×4 grid, like tiles scattered off a wall */
+      var PLACE = [[2, 0, 0, 1], [1, 1, 1, 2], [3, 1, 2, 0], [0, 2, 3, 3], [2, 2, 1, 1], [1, 3, 2, 3], [3, 3, 0, 0], [2.5, 2.4, 3, 2]];
+      var host = document.getElementById('rugs'), RUGS = [];
+      PLACE.slice(0, 7).forEach(function (p, i) {
+        var c = make(N * K, N * K);
+        c.style.left = (p[0] * 79) + 'px'; c.style.top = (p[1] * 79) + 'px';
+        host.appendChild(c);
+        var art = rug(p[2], PAL[p[3]], 100 + i * 17);
+        c.getContext('2d').drawImage(art.a, 0, 0);
+        RUGS.push({ g: c.getContext('2d'), art: art, off: i * .143 });
+      });
+      function drawRugs(t) {
+        RUGS.forEach(function (r) {
+          var ph = (t / 8000 + r.off) % 1, g = r.g, y, from = 0, to = 0, size = N * K;
+          g.drawImage(r.art.a, 0, 0);
+          if (ph < .14) to = ph / .14; else if (ph < .36) to = 1; else if (ph < .5) { from = (ph - .36) / .14; to = 1; } else return;
+          for (y = 0; y < N; y++) {
+            var x0 = Math.round((from * 2 * N - y)), x1 = Math.round((to * 2 * N - y));
+            if (to === 1) x1 = N;
+            x0 = Math.max(0, Math.min(N, x0)); x1 = Math.max(0, Math.min(N, x1));
+            if (x1 > x0) g.drawImage(r.art.b, x0 * K, y * K, (x1 - x0) * K, K, x0 * K, y * K, (x1 - x0) * K, K);
+          }
+        });
+      }
+
+      /* Rug border strip used as a divider */
+      (function () {
+        var w = 24, h = 11, c = make(w, h), g = c.getContext('2d'), p = PAL[0], x, y;
+        for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+          var d = Math.abs((x % 12) - 6) + Math.abs(y - 5), col;
+          if (y === 0 || y === h - 1) col = p.c;
+          else if (y === 1 || y === h - 2) col = p.b;
+          else if (d < 2) col = p.c; else if (d < 4) col = p.d; else if (d < 6) col = p.a; else col = p.f;
+          g.fillStyle = col; g.fillRect(x, y, 1, 1);
+        }
+        var url = c.toDataURL();
+        document.querySelectorAll('.rug-strip').forEach(function (s) { s.style.backgroundImage = 'url(' + url + ')'; });
+      })();
+
+      /* ---- Run ---- */
+      var visible = true, raf = 0;
+      function frame(t) { raf = 0; draw(t); drawRugs(t); if (visible && !document.hidden) raf = requestAnimationFrame(frame); }
+      function start() { if (!raf && !still) raf = requestAnimationFrame(frame); }
+      size();
+      window.addEventListener('resize', function () { size(); if (still) draw(0); });
+      if (still) { draw(0); }
+      else {
+        document.addEventListener('visibilitychange', start);
+        if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; start(); }).observe(document.querySelector('.hero'));
+        start();
+      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (still) draw(0); });
+    })();
+  </script>
+</body>
+</html>

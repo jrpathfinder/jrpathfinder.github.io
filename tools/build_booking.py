@@ -34,7 +34,7 @@ T = {
     'ru': dict(
         lang='ru', suffix='-ru', other=('', 'en', 'EN'),
         profile='index-ru.html',
-        nav=['Профиль', 'Обучение ⟶»', 'Запись', 'Оплата'], nav_label='Разделы',
+        nav=['Профиль', 'Обучение ⟶»', 'ИИ агенты', 'Запись', 'Оплата'], nav_label='Разделы',
         theme='Сменить тему',
         register=dict(
             title='Запись — Рустем Глюмов', h1='Запись',
@@ -66,7 +66,7 @@ T = {
     'en': dict(
         lang='en', suffix='', other=('-ru', 'ru', 'RU'),
         profile='index.html',
-        nav=['Profile', 'Training (RU) ⟶»', 'Book', 'Payment'], nav_label='Sections',
+        nav=['Profile', 'Training (RU) ⟶»', 'AI Agents (RU)', 'Book', 'Payment'], nav_label='Sections',
         theme='Toggle theme',
         register=dict(
             title='Book — Rustem Gliumov', h1='Book a session',
@@ -192,8 +192,8 @@ EXTRA_CSS = '''
 
 def page(t, kind, title, body, script):
     other_suffix, other_lang, other_code = t['other']
-    nav_cur = {'register': 2, 'payment': 3}[kind]
-    links = [t['profile'], 'offer-ru.html', f'register{t["suffix"]}.html']
+    nav_cur = {'register': 3, 'payment': 4}[kind]
+    links = [t['profile'], 'offer-ru.html', 'learn.html', f'register{t["suffix"]}.html']
     if CONFIG['payments']:
         links.append(f'payment{t["suffix"]}.html')
     nav = ''
